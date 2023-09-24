@@ -26,10 +26,7 @@ install_3proxy() {
     #chkconfig 3proxy on
     cd $WORKDIR
 }
-download_proxy() {
-cd /home/cloudfly
-curl -F "file=@proxy.txt" https://file.io
-}
+
 gen_3proxy() {
     cat <<EOF
 daemon
@@ -87,9 +84,6 @@ cat << EOF > /etc/rc.d/rc.local
 touch /var/lock/subsys/local
 EOF
 
-echo "installing apps"
-yum -y install wget gcc net-tools bsdtar zip >/dev/null
-
 install_3proxy
 
 echo "working folder = /home/cloudfly"
@@ -101,19 +95,12 @@ IP4=$(curl -4 -s icanhazip.com)
 IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal ip = ${IP4}. Exteranl sub for ip6 = ${IP6}"
-
-while :; do
-  read -p "Enter FIRST_PORT between 10000 and 60000: " FIRST_PORT
-  [[ $FIRST_PORT =~ ^[0-9]+$ ]] || { echo "Enter a valid number"; continue; }
-  if ((FIRST_PORT >= 10000 && FIRST_PORT <= 60000)); then
-    echo "OK! Valid number"
-    break
-  else
-    echo "Number out of range, try again"
-  fi
-done
-LAST_PORT=$(($FIRST_PORT + 750))
-echo "LAST_PORT is $LAST_PORT. Continue..."
+#echo "How many proxy do you want to create? Example 1000"
+#read COUNT
+#LAST_PORT=$(($FIRST_PORT + $COUNT))
+FIRST_PORT=28282
+#LAST_PORT=11000
+LAST_PORT=$(($FIRST_PORT + 1999))
 
 gen_data >$WORKDIR/data.txt
 gen_iptables >$WORKDIR/boot_iptables.sh
@@ -125,13 +112,12 @@ gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
 cat >>/etc/rc.local <<EOF
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
-ulimit -n 1000048
+ulimit -n 65535
 /usr/local/etc/3proxy/bin/3proxy /usr/local/etc/3proxy/3proxy.cfg
 EOF
-chmod 0755 /etc/rc.local
+
 bash /etc/rc.local
 
 gen_proxy_file_for_user
 
 echo "Starting Proxy"
-download_proxy
