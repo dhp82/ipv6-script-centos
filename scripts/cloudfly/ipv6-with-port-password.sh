@@ -121,3 +121,4 @@ bash /etc/rc.local
 gen_proxy_file_for_user
 
 echo "Starting Proxy"
+exit
