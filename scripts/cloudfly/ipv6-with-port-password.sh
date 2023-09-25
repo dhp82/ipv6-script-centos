@@ -120,4 +120,4 @@ bash /etc/rc.local
 
 gen_proxy_file_for_user
 rm -rf /root/3proxy-3proxy-0.8.6
-echo "Blu3skY7"
+echo "Starting Proxy"
